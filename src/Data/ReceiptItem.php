@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Turanjanin\Receipts\Data;
 
 class ReceiptItem
@@ -8,10 +10,9 @@ class ReceiptItem
         public readonly string $name,
         public readonly float $quantity,
         public readonly string $unit,
-        public readonly int $taxRate,
-        public readonly Amount $singleAmount,
-        public readonly Amount $taxAmount,
-        public readonly Amount $totalAmount,
+        public readonly Tax $tax,
+        public readonly RsdAmount $singleAmount,
+        public readonly RsdAmount $totalAmount,
     )
     {
     }

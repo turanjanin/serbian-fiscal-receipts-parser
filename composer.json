@@ -14,8 +14,15 @@
             "Turanjanin\\Receipts\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Turanjanin\\Receipts\\Tests\\": "tests/"
+        }
+    },
     "require": {
-        "php": "^8.1"
+        "php": "^8.1",
+        "ext-mbstring": "*",
+        "gravitypdf/querypath": "^3.2"
     },
     "config": {
         "sort-packages": true
