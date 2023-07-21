@@ -29,6 +29,11 @@ class Parser
          *
          * Therefore, we will try to remove first and last line.
          */
+
+        if (mb_strpos($receiptContent, "\n") === false) {
+            throw new \RuntimeException('The receipt content should be a string that spans multiple lines.');
+        }
+
         $receiptContent = mb_substr($receiptContent, mb_strpos($receiptContent, "\n") + 1);
         $receiptContent = mb_substr($receiptContent, 0, mb_strrpos($receiptContent, "\n"));
 
@@ -159,7 +164,7 @@ class Parser
         $optionalPrefixItemCode = '(?:[0-9]{3,}(?: |,|\-))?';
         $optionalSuffixItemCode = '(?:(?: |,|\-)[0-9]{3,})?';
         $itemName = '(?<name>.*)';
-        $unit = '(?:\/|\/ | )(?<unit>kom|kg|l|lit|kut|m|pce|ko|fl)';
+        $unit = '(?:\/|\/ | |\\\)(?<unit>kom|kg|l|lit|lit.|kut|m|pce|ko|fl)';
         $taxIdentifier = '\((?<taxIdentifier>' . implode('|', $identifiers) . ')\)';
 
         $items = [];

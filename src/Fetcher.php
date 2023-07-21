@@ -28,6 +28,13 @@ class Fetcher
 
     public function fetchFromUrl(string $url): Receipt
     {
+        $receiptContent = $this->fetchReceiptContent($url);
+
+        return $this->parser->parse($receiptContent);
+    }
+
+    public function fetchReceiptContent(string $url): string
+    {
         if (!str_starts_with($url, 'https://suf.purs.gov.rs/v/?vl=')) {
             throw new \RuntimeException('Invalid URL provided.');
         }
@@ -36,9 +43,7 @@ class Fetcher
         $response = $this->client->sendRequest($request);
         $html = $response->getBody()->getContents();
 
-        $receiptContent = $this->extractReceiptContent($html);
-
-        return $this->parser->parse($receiptContent);
+        return $this->extractReceiptContent($html);
     }
 
     public function fetchFromHtml(string $html): Receipt
