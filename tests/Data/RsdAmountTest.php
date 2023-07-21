@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Turanjanin\Receipts\Tests\Data;
+namespace Turanjanin\FiscalReceipts\Tests\Data;
 
-use Turanjanin\Receipts\Data\RsdAmount;
-use Turanjanin\Receipts\Tests\TestCase;
+use Turanjanin\FiscalReceipts\Data\RsdAmount;
+use Turanjanin\FiscalReceipts\Tests\TestCase;
 
 class RsdAmountTest extends TestCase
 {

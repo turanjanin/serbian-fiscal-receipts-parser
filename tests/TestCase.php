@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Turanjanin\Receipts\Tests;
+namespace Turanjanin\FiscalReceipts\Tests;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {

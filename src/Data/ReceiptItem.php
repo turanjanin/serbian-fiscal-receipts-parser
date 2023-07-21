@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Turanjanin\Receipts\Data;
+namespace Turanjanin\FiscalReceipts\Data;
 
 class ReceiptItem
 {
