@@ -35,7 +35,22 @@ class Parser
         $sectionDelimiter = '========================================';
         $subDelimiter = '----------------------------------------';
 
-        [$header, $body, $taxData, $fiscalizationData, $qrCodeData] = explode($sectionDelimiter, $receiptContent);
+        $sections = explode($sectionDelimiter, $receiptContent);
+
+        /**
+         * Receipt should typically have the following sections:
+         *  - 0: Header
+         *  - 1: List of items in the receipt
+         *  - 2: List of different taxes applied to receipt items
+         *  - 3: Fiscalization data
+         *  - 4: QR code image
+         */
+
+        if (count($sections) < 5) {
+            throw new \RuntimeException('Receipt structure not found in the given string.');
+        }
+
+        $header = mb_substr($sections[0], 0, mb_strrpos($sections[0], "\n--"));
 
         // Lines 0 - 4 are always displaying store data.
         $store = $this->extractStoreData($header);
@@ -43,6 +58,14 @@ class Parser
         // Lines 5+ have various additional meta-data
         $meta = $this->extractKeyValuePairs($header);
 
+
+        $sectionKey = 2;
+        // There can be an extra section in the middle saying "ОВО НИЈЕ ФИСКАЛНИ РАЧУН"
+        if (!str_starts_with(trim($sections[$sectionKey]), 'Ознака')) {
+            $sectionKey++;
+        }
+
+        $taxData = $sections[$sectionKey];
 
         $lines = explode("\n", trim($taxData));
         $taxes = [];
@@ -55,8 +78,7 @@ class Parser
                 break;
             }
 
-            $parts = preg_split('/ +/', $lines[$i]);
-
+            $parts = preg_split('/ {2,}/', $lines[$i], 4);
             $identifier = $parts[0];
 
             $tax = new Tax(
@@ -73,12 +95,7 @@ class Parser
             );
         }
 
-
-        [$itemData, $paymentData] = explode($subDelimiter, $body, 2);
-
-        $items = $this->extractItemData($itemData, $taxTypes);
-        $paymentSummary = array_map([RsdAmount::class, 'fromString'], $this->extractKeyValuePairs($paymentData));
-
+        $fiscalizationData = $sections[++$sectionKey];
         $fiscalization = $this->extractKeyValuePairs($fiscalizationData);
 
         $timezone = new DateTimeZone('Europe/Belgrade');
@@ -87,7 +104,18 @@ class Parser
             $date = new DateTimeImmutable('now', $timezone);
         }
 
-        $qrCode = QueryPath::withHTML5($qrCodeData)->find('img')->attr('src') ?? '';
+        $qrCodeData = $sections[++$sectionKey];
+        $qrCode = '';
+        if (trim($qrCodeData) !== '') {
+            $qrCode = QueryPath::withHTML5($qrCodeData)->find('img')->attr('src') ?? '';
+        }
+
+
+        $body = $sections[1];
+        [$itemData, $paymentData] = explode($subDelimiter, $body, 2);
+
+        $items = $this->extractItemData($itemData, $taxTypes);
+        $paymentSummary = array_map([RsdAmount::class, 'fromString'], $this->extractKeyValuePairs($paymentData));
 
         return new Receipt(
             store: $store,
@@ -119,30 +147,6 @@ class Parser
         );
     }
 
-    private function extractTaxData(string $content): array
-    {
-        $lines = explode("\n", trim($content));
-
-        $delimiter = '----------------------------------------';
-
-        $taxes = [];
-        for ($i = 1, $count = count($lines); $i <= $count; $i++) {
-            if ($lines[$i] == $delimiter) {
-                break;
-            }
-
-            $parts = preg_split('/ +/', $lines[$i]);
-
-            $taxes[$parts[0]] = new Tax(
-                name: $parts[1],
-                identifier: $parts[0],
-                rate: intval($parts[2]),
-            );
-        }
-
-        return $taxes;
-    }
-
     /**
      * @param array<string, Tax> $taxes
      */
@@ -150,11 +154,13 @@ class Parser
     {
         $lines = explode("\n", trim($itemData));
 
+        $identifiers = array_keys($taxes);
+
         $optionalPrefixItemCode = '(?:[0-9]{3,}(?: |,|\-))?';
         $optionalSuffixItemCode = '(?:(?: |,|\-)[0-9]{3,})?';
         $itemName = '(?<name>.*)';
         $unit = '(?:\/|\/ | )(?<unit>kom|kg|l|lit|kut|m|pce|ko|fl)';
-        $taxIdentifier = '\((?<taxIdentifier>е|ђ|a)\)';
+        $taxIdentifier = '\((?<taxIdentifier>' . implode('|', $identifiers) . ')\)';
 
         $items = [];
         $itemLine = '';
@@ -190,7 +196,7 @@ class Parser
             $items[] = new ReceiptItem(
                 name: trim($lineMatches['name']),
                 quantity: $this->convertDecimalCommaToPoint($amountMatches[2] ?? '0'),
-                unit: trim($lineMatches['unit'] ?? 'KOM'),
+                unit: mb_strtoupper(trim($lineMatches['unit'] ?? 'KOM')),
                 tax: $tax,
                 singleAmount: RsdAmount::fromString($amountMatches[1] ?? '0'),
                 totalAmount: $totalAmount,
@@ -207,14 +213,19 @@ class Parser
         $lines = explode("\n", $content);
 
         $pairs = [];
+        $lastKey = null;
         foreach ($lines as $line) {
             $parts = preg_split('/: /', $line, 2);
 
             if (count($parts) !== 2) {
+                if ($lastKey) {
+                    $pairs[$lastKey] .= $line;
+                }
                 continue;
             }
 
-            $pairs[trim($parts[0])] = trim($parts[1]);
+            $lastKey = trim($parts[0]);
+            $pairs[$lastKey] = trim($parts[1]);
         }
 
         return $pairs;
