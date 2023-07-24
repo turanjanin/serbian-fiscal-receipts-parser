@@ -12,6 +12,7 @@ class Receipt
         public readonly Store $store,
         public readonly string $number,
         public readonly string $counter,
+        public readonly ReceiptType $type,
         /** @var array<string, string> */
         public readonly array $meta,
         /** @var ReceiptItem[] */

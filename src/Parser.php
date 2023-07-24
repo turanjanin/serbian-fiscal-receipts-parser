@@ -7,6 +7,7 @@ namespace Turanjanin\FiscalReceipts;
 use DateTimeImmutable;
 use DateTimeZone;
 use QueryPath\QueryPath;
+use Turanjanin\FiscalReceipts\Data\ReceiptType;
 use Turanjanin\FiscalReceipts\Data\RsdAmount;
 use Turanjanin\FiscalReceipts\Data\Receipt;
 use Turanjanin\FiscalReceipts\Data\ReceiptItem;
@@ -122,10 +123,15 @@ class Parser
         $items = $this->extractItemData($itemData, $taxTypes);
         $paymentSummary = array_map([RsdAmount::class, 'fromString'], $this->extractKeyValuePairs($paymentData));
 
+        $counter = $fiscalization['Бројач рачуна'] ?? '';
+        $typeIndicator = mb_substr($counter, -2);
+        $type = ReceiptType::tryFrom($typeIndicator) ?? ReceiptType::NormalSale;
+
         return new Receipt(
             store: $store,
             number: $fiscalization['ПФР број рачуна'] ?? '',
-            counter: $fiscalization['Бројач рачуна'] ?? '',
+            counter: $counter,
+            type: $type,
             meta: $meta,
             items: $items,
             taxItems: $taxItems,

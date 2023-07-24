@@ -4,6 +4,7 @@ namespace Turanjanin\FiscalReceipts\Tests;
 
 use Turanjanin\FiscalReceipts\Data\Receipt;
 use Turanjanin\FiscalReceipts\Data\ReceiptItem;
+use Turanjanin\FiscalReceipts\Data\ReceiptType;
 use Turanjanin\FiscalReceipts\Data\Store;
 use Turanjanin\FiscalReceipts\Data\TaxItem;
 use Turanjanin\FiscalReceipts\Parser;
@@ -40,6 +41,7 @@ class ParserTest extends TestCase
 
         $this->assertSame('746DUV64-746DUV64-16898', $receipt->number);
         $this->assertSame('16887/16898ПП', $receipt->counter);
+        $this->assertSame(ReceiptType::NormalSale, $receipt->type);
         $this->assertCount(2, $receipt->meta);
         $this->assertSame('431/2.0.0.2', $receipt->meta['ЕСИР број']);
 
@@ -104,6 +106,8 @@ class ParserTest extends TestCase
 
         $parser = new Parser();
         $receipt = $parser->parse($receiptContent);
+
+        $this->assertSame(ReceiptType::ProformaSale, $receipt->type);
 
         $this->assertCount(3, $receipt->items);
         $this->assertCount(1, $receipt->taxItems);
@@ -237,6 +241,8 @@ class ParserTest extends TestCase
 
         $parser = new Parser();
         $receipt = $parser->parse($receiptContent);
+
+        $this->assertSame(ReceiptType::NormalRefund, $receipt->type);
 
         $this->assertSame('BODI ŽERSEJ - MAJICA -', $receipt->items[0]->name);
         $this->assertSame(-599_00, $receipt->items[0]->totalAmount->getParas());
