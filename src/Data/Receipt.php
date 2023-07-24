@@ -17,10 +17,11 @@ class Receipt
         /** @var ReceiptItem[] */
         public readonly array $items,
         /** @var TaxItem[] */
-        public readonly array $taxes,
+        public readonly array $taxItems,
         /** @var array<string, RsdAmount> */
         public readonly array $paymentSummary,
         public readonly RsdAmount $totalPurchaseAmount,
+        public readonly RsdAmount $totalRefundAmount,
         public readonly RsdAmount $totalTaxAmount,
         public readonly DateTimeImmutable $date,
         public string $qrCode,

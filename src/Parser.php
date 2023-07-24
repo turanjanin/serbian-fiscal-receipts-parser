@@ -73,7 +73,7 @@ class Parser
         $taxData = $sections[$sectionKey];
 
         $lines = explode("\n", trim($taxData));
-        $taxes = [];
+        $taxItems = [];
         $taxTypes = [];
         $totalTaxAmount = new RsdAmount(0);
         for ($i = 1, $count = count($lines); $i <= $count; $i++) {
@@ -94,7 +94,7 @@ class Parser
 
             $taxTypes[$identifier] = $tax;
 
-            $taxes[] = new TaxItem(
+            $taxItems[] = new TaxItem(
                 tax: $tax,
                 amount: RsdAmount::fromString($parts[3]),
             );
@@ -128,9 +128,10 @@ class Parser
             counter: $fiscalization['Бројач рачуна'] ?? '',
             meta: $meta,
             items: $items,
-            taxes: $taxes,
+            taxItems: $taxItems,
             paymentSummary: $paymentSummary,
             totalPurchaseAmount: $paymentSummary['Укупан износ'] ?? new RsdAmount(0),
+            totalRefundAmount: $paymentSummary['Укупна рефундација'] ?? new RsdAmount(0),
             totalTaxAmount: $totalTaxAmount,
             date: $date,
             qrCode: mb_substr($qrCode, mb_strlen('data:image/gif;base64,')),
@@ -161,17 +162,17 @@ class Parser
 
         $identifiers = array_keys($taxes);
 
-        $optionalPrefixItemCode = '(?:[0-9]{3,}(?: |,|\-))?';
-        $optionalSuffixItemCode = '(?:(?: |,|\-)[0-9]{3,})?';
+        $itemCodePrefix = '(?:[0-9]{3,}(?: |,|\-))';
+        $itemCodeSuffix = '(?:(?: |,|\-)[0-9]{3,})';
         $itemName = '(?<name>.*)';
-        $unit = '(?:\/|\/ | |\\\)(?<unit>kom|kg|l|lit|lit.|kut|m|pce|ko|fl)';
-        $taxIdentifier = '\((?<taxIdentifier>' . implode('|', $identifiers) . ')\)';
+        $unit = '(?:\/|\/ | \/| |\\\)\(?(?<unit>kom|kg|l|lit|lit\.|kut|m|pce|ko|fl|ком|кг|л|кут|м|ко|фл)\)?';
+        $taxIdentifier = ' ?\((?<taxIdentifier>' . implode('|', $identifiers) . ')\)';
 
         $items = [];
         $itemLine = '';
         for ($i = 1, $count = count($lines); $i < $count; $i++) {
             // Description of item can span multiple lines. It's safer to test for "amount line" first.
-            preg_match("/([0-9,.]+)\s+([0-9,.]+)\s+([0-9,.]+)/", $lines[$i], $amountMatches);
+            preg_match("/([0-9,.]+)\s+([0-9,.]+)\s+(-?[0-9,.]+)/", $lines[$i], $amountMatches);
 
             if (empty($amountMatches)) {
                 $itemLine .= $lines[$i];
@@ -181,14 +182,17 @@ class Parser
             $itemLine = trim($itemLine);
 
             $lineVariants = [
-                "{$optionalPrefixItemCode}{$itemName}{$unit} {$taxIdentifier}",
-                "{$itemName}{$optionalSuffixItemCode}{$unit} {$taxIdentifier}",
-                "{$optionalPrefixItemCode}{$itemName} {$taxIdentifier}",
-                "{$itemName}{$optionalSuffixItemCode} {$taxIdentifier}",
+                "{$itemCodePrefix}{$itemName}{$unit}{$taxIdentifier}",
+                "{$itemName}{$itemCodeSuffix}{$unit}{$taxIdentifier}",
+                "{$itemName}{$unit}{$taxIdentifier}",
+
+                "{$itemCodePrefix}{$itemName}{$taxIdentifier}",
+                "{$itemName}{$itemCodeSuffix}{$taxIdentifier}",
+                "{$itemName}{$taxIdentifier}",
             ];
 
             foreach ($lineVariants as $variant) {
-                preg_match("/$variant/ui", $itemLine, $lineMatches);
+                preg_match("/^{$variant}$/ui", $itemLine, $lineMatches);
 
                 if (!empty($lineMatches)) {
                     break;

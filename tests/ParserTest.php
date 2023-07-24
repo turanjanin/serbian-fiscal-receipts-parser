@@ -20,7 +20,7 @@ class ParserTest extends TestCase
     }
 
     /** @test */
-    public function it_can_parse_a_receipt()
+    public function it_can_parse_a_normal_sale_receipt()
     {
         $receiptContent = $this->loadTestFile('1.txt');
 
@@ -59,8 +59,8 @@ class ParserTest extends TestCase
         $this->assertSame('KOM', $fourthItem->unit);
         $this->assertSame(1.0, $fourthItem->quantity);
 
-        $this->assertCount(2, $receipt->taxes);
-        $firstTax = $receipt->taxes[0];
+        $this->assertCount(2, $receipt->taxItems);
+        $firstTax = $receipt->taxItems[0];
         $this->assertInstanceOf(TaxItem::class, $firstTax);
         $this->assertSame('П-ПДВ', $firstTax->tax->name);
         $this->assertSame(10, $firstTax->tax->rate);
@@ -69,6 +69,7 @@ class ParserTest extends TestCase
         $this->assertSame(1000_00, $receipt->paymentSummary['Готовина']->getParas());
 
         $this->assertSame(829_12, $receipt->totalPurchaseAmount->getParas());
+        $this->assertSame(0, $receipt->totalRefundAmount->getParas());
         $this->assertSame(76_36, $receipt->totalTaxAmount->getParas());
 
         $this->assertSame('2022-12-31 15:51:57', $receipt->date->format('Y-m-d H:i:s'));
@@ -97,7 +98,7 @@ class ParserTest extends TestCase
     }
 
     /** @test */
-    public function it_can_parse_non_fiscal_receipts()
+    public function it_can_parse_a_proforma_sale_receipt()
     {
         $receiptContent = $this->loadTestFile('3.txt');
 
@@ -105,7 +106,7 @@ class ParserTest extends TestCase
         $receipt = $parser->parse($receiptContent);
 
         $this->assertCount(3, $receipt->items);
-        $this->assertCount(1, $receipt->taxes);
+        $this->assertCount(1, $receipt->taxItems);
 
         $this->assertSame(250_00, $receipt->totalTaxAmount->getParas());
         $this->assertSame(250_00, $receipt->totalTaxAmount->getParas());
@@ -151,9 +152,9 @@ class ParserTest extends TestCase
         $parser = new Parser();
         $receipt = $parser->parse($receiptContent);
 
-        $this->assertCount(2, $receipt->taxes);
-        $this->assertSame('О-ПДВ', $receipt->taxes[0]->tax->name);
-        $this->assertSame('Без ПДВ', $receipt->taxes[1]->tax->name);
+        $this->assertCount(2, $receipt->taxItems);
+        $this->assertSame('О-ПДВ', $receipt->taxItems[0]->tax->name);
+        $this->assertSame('Без ПДВ', $receipt->taxItems[1]->tax->name);
     }
 
     /** @test */
@@ -178,5 +179,74 @@ class ParserTest extends TestCase
 
         $this->assertSame('BATERIJE', $receipt->items[0]->name);
         $this->assertSame('KO', $receipt->items[0]->unit);
+    }
+
+    /** @test */
+    public function it_will_omit_item_code_placed_at_the_beginning_of_the_item_line()
+    {
+        $receiptContent = $this->loadTestFile('8.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parse($receiptContent);
+
+        $this->assertSame('TRAKA ZA PROZORE I VRATA "D"-BRAON 9MM X 6', $receipt->items[0]->name);
+    }
+
+    /** @test */
+    public function it_will_omit_item_code_placed_at_the_end_of_the_item_line()
+    {
+        $receiptContent = $this->loadTestFile('9.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parse($receiptContent);
+
+        $this->assertSame('OPTI BMB 95', $receipt->items[0]->name);
+    }
+
+    /** @test */
+    public function it_can_parse_receipts_without_qr_code_element()
+    {
+        $receiptContent = $this->loadTestFile('10.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parse($receiptContent);
+
+        $this->assertSame('Dzemper', $receipt->items[0]->name);
+        $this->assertEmpty($receipt->qrCode);
+    }
+
+    /** @test */
+    public function it_can_parse_receipts_where_unit_is_wrapped_in_brackets()
+    {
+        $receiptContent = $this->loadTestFile('11.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parse($receiptContent);
+
+        $this->assertSame('Pesto', $receipt->items[0]->name);
+        $this->assertSame('Blue cheese', $receipt->items[4]->name);
+
+        $this->assertSame('А', $receipt->taxItems[0]->tax->identifier);
+        $this->assertSame('Није у ПДВ', $receipt->taxItems[0]->tax->name);
+    }
+
+    /** @test */
+    public function it_can_parse_normal_refund_receipts()
+    {
+        $receiptContent = $this->loadTestFile('12.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parse($receiptContent);
+
+        $this->assertSame('BODI ŽERSEJ - MAJICA -', $receipt->items[0]->name);
+        $this->assertSame(-599_00, $receipt->items[0]->totalAmount->getParas());
+
+        $this->assertSame('DONJI VEŠ PIDŽAMA -', $receipt->items[1]->name);
+        $this->assertSame(-1299_00, $receipt->items[1]->totalAmount->getParas());
+
+        $this->assertSame(1898_00, $receipt->totalRefundAmount->getParas());
+        $this->assertSame(0, $receipt->totalPurchaseAmount->getParas());
+
+        $this->assertSame(316_33, $receipt->totalTaxAmount->getParas());
     }
 }
