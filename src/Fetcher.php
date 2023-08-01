@@ -55,6 +55,12 @@ class Fetcher
 
     public function extractReceiptContent(string $html): string
     {
+        $html = trim($html);
+
+        if (empty($html)) {
+            throw new \RuntimeException('Invalid HTML provided.');
+        }
+
         $document = QueryPath::withHTML5($html);
         $receiptContent = $document->find('pre')->first()->innerHTML() ?? '';
 
