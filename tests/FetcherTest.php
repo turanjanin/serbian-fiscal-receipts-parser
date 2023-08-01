@@ -5,6 +5,8 @@ namespace Turanjanin\FiscalReceipts\Tests;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Uri;
 use Turanjanin\FiscalReceipts\Data\Receipt;
+use Turanjanin\FiscalReceipts\Exceptions\InvalidUrlException;
+use Turanjanin\FiscalReceipts\Exceptions\ParsingException;
 use Turanjanin\FiscalReceipts\Fetcher;
 use Turanjanin\FiscalReceipts\Tests\Fakes\FakeClient;
 
@@ -37,7 +39,7 @@ class FetcherTest extends TestCase
     /** @test */
     public function it_will_throw_an_exception_if_invalid_url_is_provided()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(InvalidUrlException::class);
 
         $client = new FakeClient();
         $fetcher = new Fetcher($client);
@@ -106,7 +108,7 @@ class FetcherTest extends TestCase
      */
     public function it_will_throw_an_exception_if_receipt_content_is_not_found(string $html)
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(ParsingException::class);
 
         $client = new FakeClient();
         $fetcher = new Fetcher($client);

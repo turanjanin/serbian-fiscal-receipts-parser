@@ -8,6 +8,8 @@ use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use QueryPath\QueryPath;
 use Turanjanin\FiscalReceipts\Data\Receipt;
+use Turanjanin\FiscalReceipts\Exceptions\InvalidUrlException;
+use Turanjanin\FiscalReceipts\Exceptions\ParsingException;
 
 class Fetcher
 {
@@ -36,7 +38,7 @@ class Fetcher
     public function fetchReceiptContent(string $url): string
     {
         if (!str_starts_with($url, 'https://suf.purs.gov.rs/v/?vl=')) {
-            throw new \RuntimeException('Invalid URL provided.');
+            throw new InvalidUrlException('Only URLs from suf.purs.gov.rs domain are supported.');
         }
 
         $request = $this->requestFactory->createRequest('GET', $url);
@@ -58,14 +60,14 @@ class Fetcher
         $html = trim($html);
 
         if (empty($html)) {
-            throw new \RuntimeException('Invalid HTML provided.');
+            throw new ParsingException('Invalid HTML provided.');
         }
 
         $document = QueryPath::withHTML5($html);
         $receiptContent = $document->find('pre')->first()->innerHTML() ?? '';
 
         if (empty($receiptContent)) {
-            throw new \RuntimeException('Receipt data not found.');
+            throw new ParsingException('Receipt data not found.');
         }
 
         return $receiptContent;

@@ -3,6 +3,7 @@
 namespace Turanjanin\FiscalReceipts;
 
 use Turanjanin\FiscalReceipts\Data\UrlPayload;
+use Turanjanin\FiscalReceipts\Exceptions\InvalidUrlException;
 
 class UrlDecoder
 {
@@ -19,13 +20,13 @@ class UrlDecoder
 
         $numberOfBytes = strlen($bytes);
         if ($numberOfBytes < 572 || $numberOfBytes > 848) {
-            throw new \RuntimeException('Invalid payload provided.');
+            throw new InvalidUrlException('The length of payload is out of bounds.');
         }
 
         $hash = bin2hex(substr($bytes, -16));
         $encodedData = substr($bytes, 0, -16);
         if ($hash !== md5($encodedData)) {
-            throw new \RuntimeException('Invalid payload provided.');
+            throw new InvalidUrlException('The hash does not correspond with the given data.');
         }
 
 

@@ -14,6 +14,7 @@ use Turanjanin\FiscalReceipts\Data\ReceiptItem;
 use Turanjanin\FiscalReceipts\Data\Store;
 use Turanjanin\FiscalReceipts\Data\Tax;
 use Turanjanin\FiscalReceipts\Data\TaxItem;
+use Turanjanin\FiscalReceipts\Exceptions\ParsingException;
 
 class Parser
 {
@@ -32,7 +33,7 @@ class Parser
          */
 
         if (mb_strpos($receiptContent, "\n") === false) {
-            throw new \RuntimeException('The receipt content should be a string that spans multiple lines.');
+            throw new ParsingException('The receipt content should be a string that spans multiple lines.');
         }
 
         $receiptContent = mb_substr($receiptContent, mb_strpos($receiptContent, "\n") + 1);
@@ -53,7 +54,7 @@ class Parser
          */
 
         if (count($sections) < 5) {
-            throw new \RuntimeException('Receipt structure not found in the given string.');
+            throw new ParsingException('Receipt structure not found in the given string.');
         }
 
         $header = mb_substr($sections[0], 0, mb_strrpos($sections[0], "\n--"));

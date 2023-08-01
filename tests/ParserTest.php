@@ -7,6 +7,7 @@ use Turanjanin\FiscalReceipts\Data\ReceiptItem;
 use Turanjanin\FiscalReceipts\Data\ReceiptType;
 use Turanjanin\FiscalReceipts\Data\Store;
 use Turanjanin\FiscalReceipts\Data\TaxItem;
+use Turanjanin\FiscalReceipts\Exceptions\ParsingException;
 use Turanjanin\FiscalReceipts\Parser;
 
 class ParserTest extends TestCase
@@ -14,7 +15,7 @@ class ParserTest extends TestCase
     /** @test */
     public function it_will_throw_an_exception_if_arbitrary_string_is_parsed()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(ParsingException::class);
 
         $parser = new Parser();
         $parser->parse('test');
