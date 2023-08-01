@@ -1,5 +1,7 @@
 {
     "name": "turanjanin/serbian-fiscal-receipts-parser",
+    "description": "Library for parsing Serbian fiscal receipts.",
+    "keywords": ["serbia", "receipts", "bills", "fiscal", "tax"],
     "type": "library",
     "license": "MIT",
     "authors": [
