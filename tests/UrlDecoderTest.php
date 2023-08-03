@@ -83,4 +83,15 @@ class UrlDecoderTest extends TestCase
 
         $data = UrlDecoder::decode('https://suf.purs.gov.rs/v/?vl=A1ZCTUhYOVNYVzZVQlBaTzCyKwEA%2FmgAAMDh5AAAAAAAAAABhXchESoAAAAP3tYiO2%2BdI6Z5y2v4eC5wJTxirHDeiB1hqaKpgb%2FGvUy6yLkMNgZNqKxLqR40mK2cAfqZmKQ3%2BuCcTbec%2BQ3%2F9YY5EhTDP5HxDNhG%2FugU849FmvrVzP0sKecosSNL10dFtlH8Wgor2A2DDs8sHlmfmpokJnVcm24b%2BCz2bSCSl3HtzGRJ1w4Sw9hhdzsQ4WuPo%2FMEGMlmV8a%2Ffc7X05cWsDCHZoA5uPNWfN%2Bre8%2By5JETDJgRwNDFipYIdh0k62TMp5P0%2FzbCueIJJjas5IxAS9iIdpoTAIIl3eKwUZUWvEwtbGz5nkz52hw5%2Bmg50Uczx1SRifYq%2FEDt79xNkcceS0llpMyNdQ12TSYyL0UjMNymgGX4WPajSzPkQuFBcGLB%2BNLOn2AKLPJXa3B8b87eESXrcIbilNXS3zyr3eg4DIqcTVLXwHwcSh1WDmWKI2TFSu%2Bc6iORB11ln1kYbsEsuCoUegxRJR3RW4%2BkQz45%2Bbm4O5qWTCkDlZ73XHATWPn%2BpPfHP2Fh0Y0QK8gGxNiqrdbob3u0l8uaxKcEDaX%2F4HXnhMezvLEEwBNgWXDMn29uWYx9SWEvPrxV%2FLsIULQbE%2FlcvPeYIla63NhCyuEuGLIlwB2p%2B9O8x7sxD53fTMC7EKFRFUV13WBJS2N5%2BLUh33joYo8Qrc%2BNV2CqrtChYTftFukoKbQvCUKOYYIW0%2FA%3B');
     }
+
+    /** @test */
+    public function it_can_decode_valid_url_with_buyer_id_smaller_than_20_characters()
+    {
+        $this->markTestSkipped('TODO: find out how to verify the hash of this URL.');
+
+        $data = UrlDecoder::decode('https://suf.purs.gov.rs/v/?vl=A0Q4UEVKNFczRDhQRUo0VzO8CwAAZwgAAEC1ZAAAAAAAAAABibsCK8gAAAwxMDoxMTE1MDc1NjmGllkklRQD5HGHoqqbSz002cUirqMcLNfNDmcKDdkM7BcSUydWBpJzjOrNG43ghG2OLjBt6SFbKB93EEdg0d9agojDjn3KMYdow7zb0j/RheuBNvJWVEOvWWiXw4SQhLo4Z02bmRXjOC4d4bu3K3ZJ6XNQG/jA2Zokc8fBO60rDKt/UZwNhR4rp6AUiVXVePN/Skmth9sV8GRtDtaAm10L8WbyVv5F5+p3/4qy0wtswl718Fcmsz9FywEcqTXG8tZRizC/wVNVjbWq0XU0stUtyFyvvSpkAQaUKAE55cFbOiDFBZVMVD4c5dAuX/pSR4YieMsnnuzRNbik7jujsk9mn6sNGEg6HYxn0gucwFgbhK/ruASbNnkj0RrQSXNiEOz79IDKGyVyYWNUZYKq7EAhakiMfHjLTgZrvUqAjBmVMwwnkLFSpdpAeXkWRFzYfw3DYRwurkHBIuI2r762m4pvYanI6VbKpqQZdwmjKGYeTV+ZL72qtTLkB9eO1jVyaKtmJc0xdkaGAmurW+7vEyonNfsy/eFR1N15yah1V3X8oht02lzzPlVA0K4+1gLqqogKcuh6YjTvPg856hAMY6gX6Fwu0Qo3u/RNXG88BK8D+XwSBS0B/JYK9dLHcDSImhh04xoWJ1ZXd5IKndtqzdj5/dqQakcu+S7bWZxLGGeBPdrOKq6wvkNdWyp+RlBAM4E=');
+
+        $this->assertSame(12, $data->buyerIdLength);
+        $this->assertSame('10:111507569', $data->buyerId);
+    }
 }
