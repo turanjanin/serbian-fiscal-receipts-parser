@@ -12,8 +12,8 @@ class UrlDecoder
      */
     public static function decode(string $url): UrlPayload
     {
-        $parts = parse_url($url);
-        parse_str($parts['query'], $queryParts);
+        $queryString = parse_url($url, PHP_URL_QUERY) ?? '';
+        parse_str($queryString, $queryParts);
         $vl = $queryParts['vl'] ?? '';
 
         $bytes = base64_decode($vl);
