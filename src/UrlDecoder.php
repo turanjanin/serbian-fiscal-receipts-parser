@@ -40,7 +40,7 @@ class UrlDecoder
             $offset += $buyerIdLength;
         }
 
-        $internalDataLength = ($numberOfBytes > 576) ? 512 : 256;
+        $internalDataLength = ($numberOfBytes > 592) ? 512 : 256;
 
         $encryptedInternalData = bin2hex(substr($bytes, $offset, $internalDataLength));
         $offset += $internalDataLength;
