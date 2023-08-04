@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Turanjanin\FiscalReceipts;
 
 use Http\Discovery\Psr17FactoryDiscovery;

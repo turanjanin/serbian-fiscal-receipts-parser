@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Turanjanin\FiscalReceipts\Data;
 
 use DateTimeImmutable;
@@ -92,7 +94,7 @@ class UrlPayload
         $time = $this->dateAndTime / 1000;
         $format = ($time == round($time)) ? 'U' : 'U.v';
 
-        $date = DateTimeImmutable::createFromFormat($format, $time);
+        $date = DateTimeImmutable::createFromFormat($format, (string)$time);
 
         return $date->setTimezone(new \DateTimeZone('Europe/Belgrade'));
     }
