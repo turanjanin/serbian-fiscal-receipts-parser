@@ -14,6 +14,11 @@ class UrlDecoder
      */
     public static function decode(string $url): UrlPayload
     {
+        $domain = parse_url($url, PHP_URL_HOST) ?? '';
+        if ($domain !== 'suf.purs.gov.rs') {
+            throw new InvalidUrlException('Only URLs from the suf.purs.gov.rs domain are supported.');
+        }
+
         $queryString = parse_url($url, PHP_URL_QUERY) ?? '';
         parse_str($queryString, $queryParts);
         $vl = $queryParts['vl'] ?? '';

@@ -39,8 +39,9 @@ class Fetcher
 
     public function fetchReceiptContent(string $url): string
     {
-        if (!str_starts_with($url, 'https://suf.purs.gov.rs/v/?vl=') && !str_starts_with($url, 'https://suf.purs.gov.rs:443/v/?vl=')) {
-            throw new InvalidUrlException('Only URLs from suf.purs.gov.rs domain are supported.');
+        $domain = parse_url($url, PHP_URL_HOST) ?? '';
+        if ($domain !== 'suf.purs.gov.rs') {
+            throw new InvalidUrlException('Only URLs from the suf.purs.gov.rs domain are supported.');
         }
 
         $request = $this->requestFactory->createRequest('GET', $url);
