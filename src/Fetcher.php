@@ -39,7 +39,7 @@ class Fetcher
 
     public function fetchReceiptContent(string $url): string
     {
-        if (!str_starts_with($url, 'https://suf.purs.gov.rs/v/?vl=')) {
+        if (!str_starts_with($url, 'https://suf.purs.gov.rs/v/?vl=') && !str_starts_with($url, 'https://suf.purs.gov.rs:443/v/?vl=')) {
             throw new InvalidUrlException('Only URLs from suf.purs.gov.rs domain are supported.');
         }
 
