@@ -24,6 +24,7 @@ class UrlPayload
         public readonly string $encryptedInternalData,
         public readonly string $signature,
         public readonly string $hash,
+        public readonly bool $isHashValid,
     )
     {
     }

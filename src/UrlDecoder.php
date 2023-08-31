@@ -25,13 +25,6 @@ class UrlDecoder
             throw new InvalidUrlException('The length of payload is out of bounds.');
         }
 
-        $hash = bin2hex(substr($bytes, -16));
-        $encodedData = substr($bytes, 0, -16);
-        if ($hash !== md5($encodedData)) {
-            throw new InvalidUrlException('The hash does not correspond with the given data.');
-        }
-
-
         $buyerIdLength = unpack('C', substr($bytes, 43, 1))[1];
         $buyerId = null;
 
@@ -50,6 +43,9 @@ class UrlDecoder
         $signatureLength = 256;
         $signature = bin2hex(substr($bytes, $offset, $signatureLength));
 
+        $hash = bin2hex(substr($bytes, -16));
+        $encodedData = substr($bytes, 0, -16);
+
         return new UrlPayload(
             version: unpack('C', substr($bytes, 0, 1))[1],
             requestedBy: implode(array_map('chr', unpack('C8', $bytes, 1))),
@@ -65,6 +61,7 @@ class UrlDecoder
             encryptedInternalData: $encryptedInternalData,
             signature: $signature,
             hash: $hash,
+            isHashValid: $hash === md5($encodedData)
         );
     }
 }
