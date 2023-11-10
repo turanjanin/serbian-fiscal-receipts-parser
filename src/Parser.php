@@ -235,7 +235,7 @@ class Parser
 
             if (count($parts) !== 2) {
                 if ($lastKey) {
-                    $pairs[$lastKey] .= $line;
+                    $pairs[$lastKey] .= trim($line);
                 }
                 continue;
             }

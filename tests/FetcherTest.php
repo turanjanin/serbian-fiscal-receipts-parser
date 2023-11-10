@@ -122,6 +122,19 @@ class FetcherTest extends TestCase
         $this->assertSame($expectedContent, $content);
     }
 
+    /** @test */
+    public function it_will_decode_html_entities_when_extracting_receipt_content_from_html()
+    {
+        $html = $this->loadTestFile('2.html');
+
+        $client = new FakeClient();
+        $fetcher = new Fetcher($client);
+        $content = $fetcher->extractReceiptContent($html);
+
+        $this->assertStringNotContainsStringIgnoringCase('&amp;', $content);
+        $this->assertStringContainsString('H&M HENNES & MAURITZ', $content);
+    }
+
     /**
      * @test
      * @testWith  [""]

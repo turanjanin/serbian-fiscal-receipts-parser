@@ -258,4 +258,15 @@ class ParserTest extends TestCase
 
         $this->assertSame(316_33, $receipt->totalTaxAmount->getParas());
     }
+
+    /** @test */
+    public function it_will_omit_blank_spaces_when_parsing_receipt_number()
+    {
+        $receiptContent = $this->loadTestFile('13.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parse($receiptContent);
+
+        $this->assertSame('GZWTHS6F-GZWTHS6F-214275', $receipt->number);
+    }
 }

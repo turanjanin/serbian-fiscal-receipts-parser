@@ -73,6 +73,6 @@ class Fetcher
             throw new ParsingException('Receipt data not found.');
         }
 
-        return $receiptContent;
+        return html_entity_decode($receiptContent);
     }
 }
