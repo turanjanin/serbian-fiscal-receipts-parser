@@ -269,4 +269,16 @@ class ParserTest extends TestCase
 
         $this->assertSame('GZWTHS6F-GZWTHS6F-214275', $receipt->number);
     }
+
+    /** @test */
+    public function it_can_parse_receipts_with_items_that_have_three_or_more_numbers_in_their_name()
+    {
+        $receiptContent = $this->loadTestFile('14.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parse($receiptContent);
+
+        $this->assertCount(5, $receipt->items);
+        $this->assertSame('Kuhinjski ubrus Maxi 2 1 2sl', $receipt->items[1]->name);
+    }
 }

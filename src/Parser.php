@@ -179,7 +179,7 @@ class Parser
         $itemLine = '';
         for ($i = 1, $count = count($lines); $i < $count; $i++) {
             // Description of item can span multiple lines. It's safer to test for "amount line" first.
-            preg_match("/([0-9,.]+)\s+([0-9,.]+)\s+(-?[0-9,.]+)/", $lines[$i], $amountMatches);
+            preg_match("/([0-9,.]+)\s+([0-9,.]+)\s+(-?[0-9,.]+)$/", $lines[$i], $amountMatches);
 
             if (empty($amountMatches)) {
                 $itemLine .= $lines[$i];
