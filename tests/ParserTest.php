@@ -281,4 +281,28 @@ class ParserTest extends TestCase
         $this->assertCount(5, $receipt->items);
         $this->assertSame('Kuhinjski ubrus Maxi 2 1 2sl', $receipt->items[1]->name);
     }
+
+    /** @test */
+    public function it_can_parse_receipt_items_with_item_code_found_after_the_unit()
+    {
+        $receiptContent = $this->loadTestFile('15.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parse($receiptContent);
+
+        $this->assertSame('Beskvasni hleb', $receipt->items[0]->name);
+        $this->assertSame('Filet lososa', $receipt->items[2]->name);
+        $this->assertSame('KG', $receipt->items[2]->unit);
+    }
+
+    /** @test */
+    public function it_can_parse_receipt_items_with_square_brackets_around_item_codes_and_units()
+    {
+        $receiptContent = $this->loadTestFile('16.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parse($receiptContent);
+
+        $this->assertSame('KASIKA PLASTICNA BELA FRESH 20/1', $receipt->items[0]->name);
+    }
 }

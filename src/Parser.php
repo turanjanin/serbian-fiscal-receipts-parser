@@ -169,10 +169,10 @@ class Parser
 
         $identifiers = array_keys($taxes);
 
-        $itemCodePrefix = '(?:[0-9]{3,}(?: |,|\-))';
-        $itemCodeSuffix = '(?:(?: |,|\-)[0-9]{3,})';
+        $itemCodePrefix = '(?:\[?[0-9]{3,}\]?(?: |,|\-|\/))';
+        $itemCodeSuffix = '(?:(?: |,|\-|\/)[0-9]{3,})';
         $itemName = '(?<name>.*)';
-        $unit = '(?:\/|\/ | \/| |\\\)\(?(?<unit>kom|kg|l|lit|lit\.|kut|m|pce|ko|fl|ком|кг|л|кут|м|ко|фл)\)?';
+        $unit = '(?:\/|\/ | \/| |\\\)(\(|\[)?(?<unit>kom|kg|l|lit|lit\.|kut|m|pce|ko|fl|ком|кг|л|кут|м|ко|фл)(\)|\])?';
         $taxIdentifier = ' ?\((?<taxIdentifier>' . implode('|', $identifiers) . ')\)';
 
         $items = [];
@@ -191,6 +191,7 @@ class Parser
             $lineVariants = [
                 "{$itemCodePrefix}{$itemName}{$unit}{$taxIdentifier}",
                 "{$itemName}{$itemCodeSuffix}{$unit}{$taxIdentifier}",
+                "{$itemName}{$unit}{$itemCodeSuffix}{$taxIdentifier}",
                 "{$itemName}{$unit}{$taxIdentifier}",
 
                 "{$itemCodePrefix}{$itemName}{$taxIdentifier}",
