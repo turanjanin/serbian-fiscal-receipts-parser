@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Turanjanin\FiscalReceipts\Data;
 
 use DateTimeImmutable;
-use InvalidArgumentException;
 
 class UrlPayload
 {
@@ -30,34 +29,7 @@ class UrlPayload
 
     public function getReceiptType(): ReceiptType
     {
-        $matrix = [
-            0 => [
-                0 => ReceiptType::NormalSale,
-                1 => ReceiptType::NormalRefund,
-            ],
-            1 => [
-                0 => ReceiptType::ProformaSale,
-                1 => ReceiptType::ProformaRefund,
-            ],
-            2 => [
-                0 => ReceiptType::TrainingSale,
-                1 => ReceiptType::ProformaRefund,
-            ],
-            3 => [
-                0 => ReceiptType::AdvanceSale,
-                1 => ReceiptType::AdvanceRefund,
-            ],
-        ];
-
-        if (!isset($matrix[$this->invoiceType])) {
-            throw new InvalidArgumentException('Invalid value provided for InvoiceType.');
-        }
-
-        if (!isset($matrix[$this->invoiceType][$this->transactionType])) {
-            throw new InvalidArgumentException('Invalid value provided for TransactionType.');
-        }
-
-        return $matrix[$this->invoiceType][$this->transactionType];
+        return ReceiptType::get($this->invoiceType, $this->transactionType);
     }
 
     public function getTotalAmount(): RsdAmount

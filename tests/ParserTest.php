@@ -20,7 +20,7 @@ class ParserTest extends TestCase
         $this->expectException(ParsingException::class);
 
         $parser = new Parser();
-        $parser->parse('test');
+        $parser->parseJournal('test');
     }
 
     /** @test */
@@ -30,7 +30,7 @@ class ParserTest extends TestCase
 
         $parser = new Parser();
 
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
         $this->assertInstanceOf(Receipt::class, $receipt);
 
         $store = $receipt->store;
@@ -87,7 +87,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('2.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertCount(2, $receipt->items);
 
@@ -108,7 +108,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('3.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertSame(ReceiptType::ProformaSale, $receipt->type);
 
@@ -125,7 +125,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('4.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertCount(5, $receipt->items);
 
@@ -142,7 +142,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('5.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertSame('ESPRESSO', $receipt->items[0]->name);
         $this->assertSame('KOM', $receipt->items[0]->unit);
@@ -157,7 +157,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('6.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertCount(2, $receipt->taxItems);
         $this->assertSame('О-ПДВ', $receipt->taxItems[0]->tax->name);
@@ -170,7 +170,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('6.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertSame('9VMEKMSN-DBV8GPO0-1599033', $receipt->number);
         $this->assertSame('1598723/1599033ПП', $receipt->counter);
@@ -182,7 +182,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('7.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertSame('BATERIJE', $receipt->items[0]->name);
         $this->assertSame('KO', $receipt->items[0]->unit);
@@ -194,7 +194,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('8.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertSame('TRAKA ZA PROZORE I VRATA "D"-BRAON 9MM X 6', $receipt->items[0]->name);
     }
@@ -205,7 +205,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('9.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertSame('OPTI BMB 95', $receipt->items[0]->name);
     }
@@ -216,7 +216,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('10.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertSame('Dzemper', $receipt->items[0]->name);
         $this->assertEmpty($receipt->qrCode);
@@ -228,7 +228,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('11.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertSame('Pesto', $receipt->items[0]->name);
         $this->assertSame('Blue cheese', $receipt->items[4]->name);
@@ -243,7 +243,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('12.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertSame(ReceiptType::NormalRefund, $receipt->type);
 
@@ -265,7 +265,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('13.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertSame('GZWTHS6F-GZWTHS6F-214275', $receipt->number);
     }
@@ -276,7 +276,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('14.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertCount(5, $receipt->items);
         $this->assertSame('Kuhinjski ubrus Maxi 2 1 2sl', $receipt->items[1]->name);
@@ -288,7 +288,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('15.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertSame('Beskvasni hleb', $receipt->items[0]->name);
         $this->assertSame('Filet lososa', $receipt->items[2]->name);
@@ -301,7 +301,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('16.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertSame('KASIKA PLASTICNA BELA FRESH 20/1', $receipt->items[0]->name);
     }
@@ -312,7 +312,7 @@ class ParserTest extends TestCase
         $receiptContent = $this->loadTestFile('17.txt');
 
         $parser = new Parser();
-        $receipt = $parser->parse($receiptContent);
+        $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertSame('N COPY CENTAR РАДЊА ЗА ПРОМЕТ РОБЕ НА ВЕЛИКО И МАЛО ФОТОКОПИРАЊЕ И СЕРВИСИРАЊЕ БИРО-ОПРЕМЕ САША МИЛИВОЈЕВИЋ ПР', $receipt->store->companyName);
         $this->assertSame('1079580', $receipt->store->locationId);

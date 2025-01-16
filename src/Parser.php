@@ -19,7 +19,61 @@ use Turanjanin\FiscalReceipts\Exceptions\ParsingException;
 
 class Parser
 {
-    public function parse(string $receiptContent): Receipt
+    public function parseApiResponse(array $data): Receipt
+    {
+        if (!array_key_exists('invoiceRequest', $data) || !array_key_exists('invoiceResult', $data) || !array_key_exists('journal', $data)) {
+            throw new ParsingException('The data should represent valid API response.');
+        }
+
+        [$locationId, $locationName] = explode('-', $data['invoiceRequest']['locationName'], 2);
+
+        $store = new Store(
+            companyName: trim($data['invoiceRequest']['businessName']),
+            tin: trim($data['invoiceRequest']['taxId']),
+            locationId: trim($locationId),
+            locationName: trim($locationName),
+            address: trim($data['invoiceRequest']['address']),
+            city: trim($data['invoiceRequest']['administrativeUnit']),
+        );
+
+        $journal = str_replace("\r\n", "\n", $data['journal']);
+        $parsedJournal = $this->parseJournal($journal);
+
+        $date = (new DateTimeImmutable($data['invoiceResult']['sdcTime']))->setTimezone(new DateTimeZone('Europe/Belgrade'));
+        $type = ReceiptType::get($data['invoiceRequest']['invoiceType'], $data['invoiceRequest']['transactionType']);
+
+        $totalPurchaseAmount = new RsdAmount(0);
+        $totalRefundAmount = new RsdAmount(0);
+
+        /**
+         * Transaction types:
+         *  - 0: Sale
+         *  - 1: Refund
+         */
+        if ($data['invoiceRequest']['transactionType'] === 0) {
+            $totalPurchaseAmount = RsdAmount::fromFloat($data['invoiceResult']['totalAmount']);
+        } else {
+            $totalRefundAmount = RsdAmount::fromFloat($data['invoiceResult']['totalAmount']);
+        }
+
+        return new Receipt(
+            store: $store,
+            number: $data['invoiceResult']['invoiceNumber'],
+            counter: $data['invoiceResult']['transactionTypeCounter'] . '/' . $data['invoiceResult']['totalCounter'] . $data['invoiceResult']['invoiceCounterExtension'],
+            type: $type,
+            meta: $parsedJournal->meta,
+            items: $parsedJournal->items,
+            taxItems: $parsedJournal->taxItems,
+            paymentSummary: $parsedJournal->paymentSummary,
+            totalPurchaseAmount: $totalPurchaseAmount,
+            totalRefundAmount: $totalRefundAmount,
+            totalTaxAmount: $parsedJournal->totalTaxAmount,
+            date: $date,
+            qrCode: $parsedJournal->qrCode,
+        );
+    }
+
+    public function parseJournal(string $receiptContent): Receipt
     {
         /**
          * Every receipt is shown within a pair of delimiters. These can differ based on the receipt type.

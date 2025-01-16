@@ -10,7 +10,7 @@ use Turanjanin\FiscalReceipts\Exceptions\InvalidUrlException;
 class UrlDecoder
 {
     /**
-     * @see https://tap.suf.purs.gov.rs/Help/view/612513249/Create-Verification-URL/en-US
+     * @see https://tap.suf.purs.gov.rs/help/view/1055198429/Create-Verification-URL/en-US
      */
     public static function decode(string $url): UrlPayload
     {

@@ -46,6 +46,22 @@ class RsdAmountTest extends TestCase
     }
 
     /** @test */
+    public function it_can_create_new_instance_from_float()
+    {
+        $amount = RsdAmount::fromFloat(141.59);
+        $this->assertSame(141, $amount->integer);
+        $this->assertSame(59, $amount->fraction);
+
+        $amount = RsdAmount::fromFloat(250);
+        $this->assertSame(250, $amount->integer);
+        $this->assertSame(0, $amount->fraction);
+
+        $amount = RsdAmount::fromFloat(54983.99);
+        $this->assertSame(54983, $amount->integer);
+        $this->assertSame(99, $amount->fraction);
+    }
+
+    /** @test */
     public function it_can_be_cast_to_string()
     {
         $amount = new RsdAmount(141, 59);

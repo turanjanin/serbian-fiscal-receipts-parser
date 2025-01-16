@@ -33,6 +33,16 @@ class RsdAmount
         return new self($integer, $fraction);
     }
 
+    public static function fromFloat(float $value): self
+    {
+        @[$integer, $fraction] = explode('.', (string)$value, 2);
+
+        $integer = intval(str_replace('.', '', $integer));
+        $fraction = intval($fraction);
+
+        return new self($integer, $fraction);
+    }
+
     public function __toString(): string
     {
         return number_format($this->getFloat(), 2, ',', '.');

@@ -35,7 +35,7 @@ If you already have a plain text version of the receipt, you can call the Parser
 
 ```php
 $parser = new \Turanjanin\FiscalReceipts\Parser();
-$receipt = $parser->parse($receiptContent);
+$receipt = $parser->parseJournal($receiptContent);
 ```
 
 

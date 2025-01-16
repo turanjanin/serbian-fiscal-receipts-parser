@@ -35,15 +35,26 @@ class Fetcher
     {
         $receiptContent = $this->fetchReceiptContent($url);
 
-        return $this->parser->parse($receiptContent);
+        return $this->parser->parseJournal($receiptContent);
+    }
+
+    public function fetchFromApi(string $url): Receipt
+    {
+        $this->assertUrlValidity($url);
+
+        $request = $this->requestFactory->createRequest('GET', $url)
+            ->withHeader('Accept', 'application/json')
+            ->withHeader('Content-Type', 'application/json');
+        $response = $this->client->sendRequest($request);
+        $json = $response->getBody()->getContents();
+        $data = json_decode($json, true);
+
+        return $this->parser->parseApiResponse($data);
     }
 
     public function fetchReceiptContent(string $url): string
     {
-        $domain = parse_url($url, PHP_URL_HOST) ?? '';
-        if ($domain !== 'suf.purs.gov.rs') {
-            throw new InvalidUrlException('Only URLs from the suf.purs.gov.rs domain are supported.');
-        }
+        $this->assertUrlValidity($url);
 
         $request = $this->requestFactory->createRequest('GET', $url);
         $response = $this->client->sendRequest($request);
@@ -56,7 +67,7 @@ class Fetcher
     {
         $receiptContent = $this->extractReceiptContent($html);
 
-        return $this->parser->parse($receiptContent);
+        return $this->parser->parseJournal($receiptContent);
     }
 
     public function extractReceiptContent(string $html): string
@@ -76,5 +87,13 @@ class Fetcher
         }
 
         return html_entity_decode($receiptContent);
+    }
+
+    private function assertUrlValidity(string $url): void
+    {
+        $domain = parse_url($url, PHP_URL_HOST) ?? '';
+        if ($domain !== 'suf.purs.gov.rs') {
+            throw new InvalidUrlException('Only URLs from the suf.purs.gov.rs domain are supported.');
+        }
     }
 }
