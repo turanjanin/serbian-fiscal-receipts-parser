@@ -60,12 +60,8 @@ class Parser
 
         $header = mb_substr($sections[0], 0, mb_strrpos($sections[0], "\n--"));
 
-        // Lines 0 - 4 are always displaying store data.
         $store = $this->extractStoreData($header);
-
-        // Lines 5+ have various additional meta-data
         $meta = $this->extractKeyValuePairs($header);
-
 
         $sectionKey = 2;
         // There can be an extra section in the middle saying "ОВО НИЈЕ ФИСКАЛНИ РАЧУН"
@@ -150,15 +146,52 @@ class Parser
     private function extractStoreData(string $content): Store
     {
         $lines = explode("\n", $content);
-        [$locationId, $locationName] = explode('-', $lines[2], 2);
+
+        $tin = trim($lines[0]);
+        $companyNameLines = [];
+        $locationId = '';
+        $locationName = '';
+        $address = '';
+        $city = '';
+
+        // Company name can span multiple line, until we reach the location id / name pair.
+        for ($i = 1, $count = count($lines); $i < $count; $i++) {
+            $line = trim($lines[$i]);
+
+            if (preg_match("/([0-9]+)\-(.+)/ui", $line, $matches)) {
+                $locationId = $matches[1];
+                $locationName = trim($matches[2]);
+                break;
+            }
+
+            $companyNameLines[] = $line;
+        }
+
+        /**
+         * TODO: Can we process the following cases?
+         *  - Location name can span multiple lines:
+         *      - https://suf.purs.gov.rs/v/?vl=A05DRjY1UlhZTkNGNjVSWFmCUAAAgVAAAKBaMgAAAAAAAAABilcx7KIAAAAjhTToDyIlpfRcGCKbFB4GYM4dXAye5cGXJMhPbsqjCGq7rZCYRxyEO13T5va%2BTtrcOmBKhjJSeny9zk%2B9LQl0otzl6BcvisYdHDlvKehwZdTYZeOeLxCvdeY1nd%2Fxt6qxskz3Ngz2n%2FVdEH2GclA2xjXwsZTsMew2ZbFR2eyW0RwJN%2BKZODBeZZIv4%2FmN3JrSnu2Cb6FDl2%2F3X67vYcKS1BL%2BIPVk3UZKEolStSuL6zMfNA1Y2UN9nsl4whbguUGV%2FLWjWwDUiDkLOnKrQdKw8FC4FNuMHG8Yx3u9Kafuc2ImXuV5gYHM%2Fxd%2BLa5WK2EWf90Fev33pXvBrh3MAXGkXUXqHxqESTcJXaxr9XEfMTnoNDJvPoordMSPVx1fVRDefxYlgg21Z9g9e1F6KhKj%2BhZ1xbHWT%2FYTPfT40Ru4N3a0lUS4tAiuluM3iDAYW5rETa17Zso5JhZspNtyYbmHdsb0Nl3YE9bkgnZXSegRpuwtvEz7KwgTaDHHhCjR%2FDprkaacdvWa8mbHBONGaRyRWY9x4g%2FS8FOYIOZMzkksy0E2r9fJI3a8bHMHxCC3yX%2BHMtVXFwvYxAgZq0jFZpKD20CPedrctLPJt48iSQP8s7JJrqdZa8HVDwJohHL%2FwiEvCSLV2DC%2BP6An89Fyxeo2EoXdbGKkfQxYmb2CGTAsPgUE1lYmcKvzQX5WppSlgVM%3D
+         *      - https://suf.purs.gov.rs/v/?vl=A0pKNFVZTVJGSko0VVlNUkZzGwAAZRsAAOB5rwAAAAAAAAABjU%2BB5%2FEAAABpTy7unuLhcXg9ZfaKVXgL8Qy6rRNpuxzEveQd67GfOzZgHgA%2BJIK42JzQB7ubdMAnu%2BL3JNwm7642BTWrLRJ1JTNhGt3t7lkBLKYeHK9jMXyo79svwUnMGU9LAO6G8GGrWrrwtVZf7GykiQd5SJiMJi%2FKBGwTZUZJU3DVKExIL5SwyXIsXsjdcy%2B8avj9ODZiAmwhZuROOgV54as09mxspbmSM5CG4nl0qrgZKeSJ6hDZFyvxTOdNnvt6OMDy06KYBKopQ5Y5c5CY3ueEY924mZx2vzRrK5gq1EoQ9PsHqu95jwYoNyVaILth%2FS%2FcJxdQgG0ECRwbofaKDSFEXV8Tc4045jW9%2BYeqmDIb0G1jowHIwLBwbJN12A2KPbxP8ZqBoNNfhKJJCeimt3SPA7cnwKMpmAB1fUEpP6izdxc5iJ%2F1ebn8ZkXZ7Gfc29TwadvvUZVGN1Ie0FkCAVA5b%2BCa1vR1E9CHQWTaHI2L9eZ30JOI13w5pdxm1LDIekTVenQ9jrsW6xx5gWcWHCvbKd0jyTf40Hp7a06Qj4pnZNe75XTjIW4um4TKtmdHbRaMAcv7ljNokh4v6KF0P3M%2BAG1fYEuTi33VuZO6jV9ySlu7PE3o1Byw9hdjzLhU%2F6VWWn4dNt16Ij9%2FJ03ZMAeIIzbDbwrGcsF2rZl20XR%2FUdLzZ4grsH0e%2F8eXsXKA1dCHmn4%3D
+         *  - Address can span multiple lines:
+         *      - https://suf.purs.gov.rs/v/?vl=A0pGTjJKNkpRSkZOMko2SlEUxwAASMYAABDrCQAAAAAAAAABhxkvlzYAAABd3dUWrzBwp%2FJVhDymOF%2BP8BLruog1GhT3hLglupnFRYet58ZKSrMvdK8DVsMr7D4AhIPX0FPcYcFX4QWWjRNenpNmlgg9vo7ABJH0Lf8R2nsKY4IJOF%2FWIbzV9E3f6%2FNUtARTSGBy5QDERUhhCD9DJOmg%2Bz%2F9cYjYm3jN8ctNA5bmHBXw3g%2Fk81JhZ21FZ2AyGoOZ3zx1Tzc8SbFgK0lTp77drLw5cek5l1QepGU7VIxaGzwpvTlU4BDe3orKlMmL9XTqFQvIBq7rgmodU8Loy3JseN7VopjDnn8ALR9PTAnTvvfZwdE6Wr%2BpsIWvom2ZN7JP2f2GT6vBjfCAJytQhL1WN3d2kE5QO4C8iIDJt4TRZDsJkic77M8xbW%2BHCEdtet%2BBpQ0F7T4DGf0BP3VcjiN%2BMRKDBmt7oIHfj%2FyZYoCuRcgL7r7PW7z%2FB1OW403hfTp%2Fvn7MLBmrqJt1vmXtsMycDI3XJBVeIJJRj%2BXlenaL6Ug249avQhahkZYqKzmj%2BjkprJj%2BQLOBsnmdaRyR1rK9fT71hnmIASwTOb6UOr0CsRPUiK90vbY8Y3GfFn1NvL9VVI9nCZ7quJezSupZvWh7Y75RxRywxtjLrWnwHkZqZro%2B%2FF6XEDiX5c109Zu4WlDkf72NLtNddmMLpCifc2kLNU6VoKSSyiYW4HvJBLJU9Pqsja1Yrx5BWljAyYU%3D
+         *      - https://suf.purs.gov.rs/v/?vl=A1NETkRZSlJRU0RORFlKUlHdNgEAuCwBAIAjQwAAAAAAAAABkBGcVygAAAA4WIjKrFOQOxVp9zqPGN4aQJzNRrS2OpKb5w+7nuXOBLQviaIqM/uTR0x9Vtyfqa5wcKuuS/quTuEjUg2TG7jg2gBaZJxOf7zftOi/zUvD2W9jceszx+NepNi3DoVBV4+h+xbPJcr5mKh2xjaPdzwxoEWUPn+vf+DPVxWJekz0H2yPH+Z9f2jTcq6RNjU1YfyXQr8NMnZM7MFNMzSCZmEeTOFH3Oi1sPT80xRBc4Yik7/tjbO9mskvOFHBXuwmcFFBEj9ktVSgKB4AldH1G0pX29i/PP2emhKSLEpy9Hk6ympk3ljpW4MaZMr2jjKdj9YjuCd0yrWbu/QlsFY9fPViOI6El2FZaMB9H+CuL4lcNlYtVKnZG3mcBVd6P5XRSliyfCMQSGE4Qaz5s3puIbyzUQTX9tAOU6H5rsew/j78gwr5pt5nN1Kz9KlXjNqC7rwT4jkKhtkEW9uk5qRCLXg9vrWr9hC3XcqW04p6zZTltikhLKUBhIgI857ritkvGBXIIciYv+lYJtqRBdiDSYSkCdfw1XE832dSaC7BGsANGYunXaNexFCPU75XVJRNgrTnOS2Z37gXNhWglN+BzCG8pOnX/Smpx9yrT0dt3VV2I2PIhYdADXArktgROXCyX1FCOKiyFdupH2mi+Qc1YiquFPVSPpm0ESXUH3CFTa20CbVkpScThXoeTBr0oT24u/0=
+         */
+
+        if (isset($lines[++$i])) {
+            $address = trim($lines[$i]);
+        }
+
+        if (isset($lines[++$i])) {
+            $city = trim($lines[$i]);
+        }
 
         return new Store(
-            companyName: trim($lines[1]),
-            tin: trim($lines[0]),
-            locationId: trim($locationId),
-            locationName: trim($locationName),
-            address: trim($lines[3]),
-            city: trim($lines[4]),
+            companyName: implode(' ', $companyNameLines),
+            tin: $tin,
+            locationId: $locationId,
+            locationName: $locationName,
+            address: $address,
+            city: $city,
         );
     }
 

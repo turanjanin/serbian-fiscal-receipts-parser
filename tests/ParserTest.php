@@ -305,4 +305,23 @@ class ParserTest extends TestCase
 
         $this->assertSame('KASIKA PLASTICNA BELA FRESH 20/1', $receipt->items[0]->name);
     }
+
+    /** @test */
+    public function it_can_parse_receipts_where_company_name_spans_multiple_lines()
+    {
+        $receiptContent = $this->loadTestFile('17.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parse($receiptContent);
+
+        $this->assertSame('N COPY CENTAR РАДЊА ЗА ПРОМЕТ РОБЕ НА ВЕЛИКО И МАЛО ФОТОКОПИРАЊЕ И СЕРВИСИРАЊЕ БИРО-ОПРЕМЕ САША МИЛИВОЈЕВИЋ ПР', $receipt->store->companyName);
+        $this->assertSame('1079580', $receipt->store->locationId);
+        $this->assertSame('N COPY CENTAR', $receipt->store->locationName);
+        $this->assertSame('РАЈИЋЕВА 1', $receipt->store->address);
+        $this->assertSame('Ниш-Медијана', $receipt->store->city);
+
+        $this->assertSame('ОПЕРАТОР 30', $receipt->meta['Касир']);
+
+        $this->assertSame('A4 jed 1-5', $receipt->items[0]->name);
+    }
 }
