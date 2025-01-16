@@ -6,6 +6,7 @@ namespace Turanjanin\FiscalReceipts;
 
 use DateTimeImmutable;
 use DateTimeZone;
+use Masterminds\HTML5;
 use QueryPath\QueryPath;
 use Turanjanin\FiscalReceipts\Data\ReceiptType;
 use Turanjanin\FiscalReceipts\Data\RsdAmount;
@@ -114,7 +115,8 @@ class Parser
         $qrCodeData = $sections[++$sectionKey];
         $qrCode = '';
         if (trim($qrCodeData) !== '') {
-            $qrCode = QueryPath::withHTML5($qrCodeData)->find('img')->attr('src') ?? '';
+            $source = (new HTML5)->loadHTML($qrCodeData);
+            $qrCode = QueryPath::withHTML5($source)->find('img')->attr('src') ?? '';
         }
 
 

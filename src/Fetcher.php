@@ -6,6 +6,7 @@ namespace Turanjanin\FiscalReceipts;
 
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
+use Masterminds\HTML5;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use QueryPath\QueryPath;
@@ -66,7 +67,8 @@ class Fetcher
             throw new ParsingException('Invalid HTML provided.');
         }
 
-        $document = QueryPath::withHTML5($html);
+        $source = (new HTML5)->loadHTML($html);
+        $document = QueryPath::withHTML5($source);
         $receiptContent = $document->find('pre')->first()->innerHTML() ?? '';
 
         if (empty($receiptContent)) {
