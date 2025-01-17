@@ -376,4 +376,77 @@ class ParserTest extends TestCase
         // Avent flašica za bebe natural response 260ml 9639 - SCY903/01 - 32965/kom (Ђ)
         $this->assertSame('Avent flašica za bebe natural response 260ml 9639 - SCY903/01', $receipt->items[1]->name);
     }
+
+    /** @test */
+    public function it_can_parse_api_response()
+    {
+        $json = $this->loadTestFile('1.json');
+        $data = json_decode($json, true);
+
+        $parser = new Parser();
+        $receipt = $parser->parseApiResponse($data);
+
+        $this->assertInstanceOf(Receipt::class, $receipt);
+
+        $store = $receipt->store;
+        $this->assertInstanceOf(Store::class, $store);
+        $this->assertSame('Mercator-S doo', $store->companyName);
+        $this->assertSame('101670560', $store->tin);
+        $this->assertSame('1108934', $store->locationId);
+        $this->assertSame('Roda Megamarket 345', $store->locationName);
+        $this->assertSame('ВИЗАНТИЈСКИ БУЛЕВАР 1', $store->address);
+        $this->assertSame('Ниш-Медијана', $store->city);
+
+        $this->assertSame('746DUV64-746DUV64-16898', $receipt->number);
+        $this->assertSame('16887/16898ПП', $receipt->counter);
+        $this->assertSame(ReceiptType::NormalSale, $receipt->type);
+        $this->assertCount(2, $receipt->meta);
+        $this->assertSame('431/2.0.0.2', $receipt->meta['ЕСИР број']);
+
+        $this->assertCount(5, $receipt->items);
+        $firstItem = $receipt->items[0];
+        $this->assertInstanceOf(ReceiptItem::class, $firstItem);
+
+        $this->assertSame('JABUKA ZLATNI DELISES', $firstItem->name);
+        $this->assertSame(1.066, $firstItem->quantity);
+        $this->assertSame('KG', $firstItem->unit);
+        $this->assertSame('Е', $firstItem->tax->identifier);
+        $this->assertSame(119_99, $firstItem->singleAmount->getParas());
+        $this->assertSame(127_91, $firstItem->totalAmount->getParas());
+
+        $fourthItem = $receipt->items[3];
+        $this->assertSame('KESA VJZ 7KG 51 MIKRON', $fourthItem->name);
+        $this->assertSame('KOM', $fourthItem->unit);
+        $this->assertSame(1.0, $fourthItem->quantity);
+
+        $this->assertCount(2, $receipt->taxItems);
+        $firstTax = $receipt->taxItems[0];
+        $this->assertInstanceOf(TaxItem::class, $firstTax);
+        $this->assertSame('П-ПДВ', $firstTax->tax->name);
+        $this->assertSame(10, $firstTax->tax->rate);
+        $this->assertSame(74_19, $firstTax->amount->getParas());
+
+        $this->assertSame(1000_00, $receipt->paymentSummary['Готовина']->getParas());
+
+        $this->assertSame(829_12, $receipt->totalPurchaseAmount->getParas());
+        $this->assertSame(0, $receipt->totalRefundAmount->getParas());
+        $this->assertSame(76_36, $receipt->totalTaxAmount->getParas());
+
+        $this->assertSame('2022-12-31 15:51:57', $receipt->date->format('Y-m-d H:i:s'));
+    }
+
+    /** @test */
+    public function it_will_throw_an_error_if_data_doesnt_contain_all_relevant_fields()
+    {
+        $this->expectException(ParsingException::class);
+
+        $data = [
+            'invoiceRequest' => [],
+            //'invoiceResult' => [], -- this field is missing
+            'journal' => '',
+        ];
+
+        $parser = new Parser();
+        $parser->parseApiResponse($data);
+    }
 }

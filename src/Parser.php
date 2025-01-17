@@ -42,9 +42,6 @@ class Parser
         $date = (new DateTimeImmutable($data['invoiceResult']['sdcTime']))->setTimezone(new DateTimeZone('Europe/Belgrade'));
         $type = ReceiptType::get($data['invoiceRequest']['invoiceType'], $data['invoiceRequest']['transactionType']);
 
-        $totalPurchaseAmount = new RsdAmount(0);
-        $totalRefundAmount = new RsdAmount(0);
-
         /**
          * Transaction types:
          *  - 0: Sale
@@ -52,7 +49,9 @@ class Parser
          */
         if ($data['invoiceRequest']['transactionType'] === 0) {
             $totalPurchaseAmount = RsdAmount::fromFloat($data['invoiceResult']['totalAmount']);
+            $totalRefundAmount = new RsdAmount(0);
         } else {
+            $totalPurchaseAmount = new RsdAmount(0);
             $totalRefundAmount = RsdAmount::fromFloat($data['invoiceResult']['totalAmount']);
         }
 
@@ -340,9 +339,8 @@ class Parser
     private function convertDecimalCommaToPoint(string $input): float
     {
         @[$integer, $fraction] = explode(',', $input, 2);
-
-        $integer = intval(str_replace('.', '', $integer));
-        $fraction = intval($fraction);
+        $integer = str_replace('.', '', $integer);
+        $fraction ??= 0;
 
         return floatval("{$integer}.{$fraction}");
     }

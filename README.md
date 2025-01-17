@@ -23,8 +23,11 @@ $url = 'https://suf.purs.gov.rs/v/?vl=A1ZCTUhYOVNYVzZVQlBaTzCyKwEA%2FmgAAMDh5AAA
 
 $fetcher = new \Turanjanin\FiscalReceipts\Fetcher();
 
-// Get receipt from the given URL. 
+// Get receipt from the given URL by parsing a web page. 
 $receipt = $fetcher->fetchFromUrl($url);
+
+// Get receipt from the given URL by fetching the JSON API.
+$receipt = $fetcher->fetchFromApi($url);
 
 // Or, if you already have URL content stored in $html variable:
 $receipt = $fetcher->fetchFromHtml($html);

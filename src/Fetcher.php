@@ -13,6 +13,7 @@ use QueryPath\QueryPath;
 use Turanjanin\FiscalReceipts\Data\Receipt;
 use Turanjanin\FiscalReceipts\Exceptions\InvalidUrlException;
 use Turanjanin\FiscalReceipts\Exceptions\ParsingException;
+use Turanjanin\FiscalReceipts\Exceptions\SufException;
 
 class Fetcher
 {
@@ -46,6 +47,11 @@ class Fetcher
             ->withHeader('Accept', 'application/json')
             ->withHeader('Content-Type', 'application/json');
         $response = $this->client->sendRequest($request);
+
+        if ($response->getStatusCode() !== 200) {
+            throw new SufException('There was an error while fetching receipt details. SUF returned status code ' . $response->getStatusCode());
+        }
+
         $json = $response->getBody()->getContents();
         $data = json_decode($json, true);
 
@@ -58,6 +64,11 @@ class Fetcher
 
         $request = $this->requestFactory->createRequest('GET', $url);
         $response = $this->client->sendRequest($request);
+
+        if ($response->getStatusCode() !== 200) {
+            throw new SufException('There was an error while fetching receipt content. SUF returned status code ' . $response->getStatusCode());
+        }
+
         $html = $response->getBody()->getContents();
 
         return $this->extractReceiptContent($html);
