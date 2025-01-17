@@ -378,6 +378,21 @@ class ParserTest extends TestCase
     }
 
     /** @test */
+    public function it_will_differentiate_between_units_and_units_that_are_found_as_item_name_suffix()
+    {
+        $receiptContent = $this->loadTestFile('20.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parseJournal($receiptContent);
+
+        // CLEANIC BLAZ. 107KOM (Ђ)
+        $this->assertSame('CLEANIC BLAZ. 107KOM', $receipt->items[1]->name);
+
+        // alverde gel/ tuširanje 250ml (Ђ)
+        $this->assertSame('alverde gel/ tuširanje 250ml', $receipt->items[3]->name);
+    }
+
+    /** @test */
     public function it_can_parse_api_response()
     {
         $json = $this->loadTestFile('1.json');

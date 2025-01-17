@@ -258,9 +258,9 @@ class Parser
         $identifiers = array_keys($taxes);
 
         $itemCodePrefix = '(?:\[?[0-9]{3,}\]?(?: |,|\-|\/))';
-        $itemCodeSuffix = '(?:(?: |,|\-| \- |\/)[0-9]{3,})';
+        $itemCodeSuffix = '(?:(?: |,|\-| \- |\/|#)[0-9]{3,})';
         $itemName = '(?<name>.*?)';
-        $unit = '(?: \/ |\/ | \/|\/| \\\ | \\\|\\\ |\\\| *|)?(\(|\[)?(?<unit>kom|kg|kgr|l|lit|lit\.|kut|por|m|pce|ko|fl|ком|кг|кгр|л|кут|пор|м|ко|фл)(\)|\])?';
+        $unit = '(?: \/ |\/ | \/|\/| \\\ | \\\|\\\ |\\\| +)(\(|\[)?(?<unit>kom|kom\.|kg|kgr|l|lit|lit\.|kut|por|m|pce|ko|fl|ком|ком\.|кг|кгр|л|кут|пор|м|ко|фл)(\)|\])?';
         $taxIdentifier = ' ?\((?<taxIdentifier>' . implode('|', $identifiers) . ')\)';
 
         $items = [];
