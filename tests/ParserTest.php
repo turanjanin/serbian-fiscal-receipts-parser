@@ -115,7 +115,7 @@ class ParserTest extends TestCase
         $this->assertCount(3, $receipt->items);
         $this->assertCount(1, $receipt->taxItems);
 
-        $this->assertSame(250_00, $receipt->totalTaxAmount->getParas());
+        $this->assertSame(1500_00, $receipt->totalPurchaseAmount->getParas());
         $this->assertSame(250_00, $receipt->totalTaxAmount->getParas());
     }
 
@@ -129,9 +129,11 @@ class ParserTest extends TestCase
 
         $this->assertCount(5, $receipt->items);
 
+        // 0.5L AQUA VIVA VODA  FL (Ђ)
         $this->assertSame('0.5L AQUA VIVA VODA', $receipt->items[0]->name);
         $this->assertSame('FL', $receipt->items[0]->unit);
 
+        // 18.5G NESCAFE CAPP.V KO (Ђ)
         $this->assertSame('18.5G NESCAFE CAPP.V', $receipt->items[1]->name);
         $this->assertSame('KO', $receipt->items[1]->unit);
     }
@@ -144,9 +146,11 @@ class ParserTest extends TestCase
         $parser = new Parser();
         $receipt = $parser->parseJournal($receiptContent);
 
+        // ESPRESSO/kom (Ђ)
         $this->assertSame('ESPRESSO', $receipt->items[0]->name);
         $this->assertSame('KOM', $receipt->items[0]->unit);
 
+        // CEDJENA NARANDZA 0.2/kom (Ђ)
         $this->assertSame('CEDJENA NARANDZA 0.2', $receipt->items[2]->name);
         $this->assertSame('KOM', $receipt->items[2]->unit);
     }
@@ -184,6 +188,7 @@ class ParserTest extends TestCase
         $parser = new Parser();
         $receipt = $parser->parseJournal($receiptContent);
 
+        // BATERIJE\KO (Ђ)
         $this->assertSame('BATERIJE', $receipt->items[0]->name);
         $this->assertSame('KO', $receipt->items[0]->unit);
     }
@@ -196,6 +201,7 @@ class ParserTest extends TestCase
         $parser = new Parser();
         $receipt = $parser->parseJournal($receiptContent);
 
+        // 0252491 TRAKA ZA PROZORE I VRATA "D"-BRAON 9MM X 6 KOM
         $this->assertSame('TRAKA ZA PROZORE I VRATA "D"-BRAON 9MM X 6', $receipt->items[0]->name);
     }
 
@@ -207,6 +213,7 @@ class ParserTest extends TestCase
         $parser = new Parser();
         $receipt = $parser->parseJournal($receiptContent);
 
+        // OPTI BMB 95,2710124500 /LIT (Ђ)
         $this->assertSame('OPTI BMB 95', $receipt->items[0]->name);
     }
 
@@ -230,7 +237,9 @@ class ParserTest extends TestCase
         $parser = new Parser();
         $receipt = $parser->parseJournal($receiptContent);
 
+        // Pesto (kom) (А)
         $this->assertSame('Pesto', $receipt->items[0]->name);
+        // Blue cheese (kom) (А)
         $this->assertSame('Blue cheese', $receipt->items[4]->name);
 
         $this->assertSame('А', $receipt->taxItems[0]->tax->identifier);
@@ -247,10 +256,10 @@ class ParserTest extends TestCase
 
         $this->assertSame(ReceiptType::NormalRefund, $receipt->type);
 
-        $this->assertSame('BODI ŽERSEJ - MAJICA -', $receipt->items[0]->name);
+        $this->assertSame('BODI ŽERSEJ - MAJICA', $receipt->items[0]->name);
         $this->assertSame(-599_00, $receipt->items[0]->totalAmount->getParas());
 
-        $this->assertSame('DONJI VEŠ PIDŽAMA -', $receipt->items[1]->name);
+        $this->assertSame('DONJI VEŠ PIDŽAMA', $receipt->items[1]->name);
         $this->assertSame(-1299_00, $receipt->items[1]->totalAmount->getParas());
 
         $this->assertSame(1898_00, $receipt->totalRefundAmount->getParas());
@@ -279,6 +288,8 @@ class ParserTest extends TestCase
         $receipt = $parser->parseJournal($receiptContent);
 
         $this->assertCount(5, $receipt->items);
+
+        // Kuhinjski ubrus Maxi 2 1 2sl/KOM (Ђ)
         $this->assertSame('Kuhinjski ubrus Maxi 2 1 2sl', $receipt->items[1]->name);
     }
 
@@ -290,7 +301,10 @@ class ParserTest extends TestCase
         $parser = new Parser();
         $receipt = $parser->parseJournal($receiptContent);
 
+        // Beskvasni hleb/KOM/7011623 (Е)
         $this->assertSame('Beskvasni hleb', $receipt->items[0]->name);
+
+        // Filet lososa/KG/0238062 (Е)
         $this->assertSame('Filet lososa', $receipt->items[2]->name);
         $this->assertSame('KG', $receipt->items[2]->unit);
     }
@@ -303,6 +317,7 @@ class ParserTest extends TestCase
         $parser = new Parser();
         $receipt = $parser->parseJournal($receiptContent);
 
+        // [528195] KASIKA PLASTICNA BELA FRESH 20/1  [KOM] (Ђ)
         $this->assertSame('KASIKA PLASTICNA BELA FRESH 20/1', $receipt->items[0]->name);
     }
 
@@ -323,5 +338,42 @@ class ParserTest extends TestCase
         $this->assertSame('ОПЕРАТОР 30', $receipt->meta['Касир']);
 
         $this->assertSame('A4 jed 1-5', $receipt->items[0]->name);
+    }
+
+    /** @test */
+    public function it_can_parse_receipt_items_where_unit_is_separated_by_slash_with_surrounding_spaces()
+    {
+        $receiptContent = $this->loadTestFile('18.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parseJournal($receiptContent);
+
+        // 406726134024 M. JEANS / KOM (Ђ)
+        $this->assertSame('M. JEANS', $receipt->items[1]->name);
+        $this->assertSame('KOM', $receipt->items[1]->unit);
+    }
+
+    /** @test */
+    public function it_can_parse_advance_sale_receipt()
+    {
+        $receiptContent = $this->loadTestFile('19.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parseJournal($receiptContent);
+
+        $this->assertInstanceOf(Receipt::class, $receipt);
+
+        $this->assertSame(ReceiptType::AdvanceSale, $receipt->type);
+
+        $this->assertCount(5, $receipt->items);
+        $this->assertCount(1, $receipt->taxItems);
+
+        $this->assertSame(6370_00, $receipt->totalPurchaseAmount->getParas());
+        $this->assertSame(1061_67, $receipt->totalTaxAmount->getParas());
+
+        // Biba Toys igračka mekana kocka za bebe - 26648/kom (Ђ)
+        $this->assertSame('Biba Toys igračka mekana kocka za bebe', $receipt->items[0]->name);
+        // Avent flašica za bebe natural response 260ml 9639 - SCY903/01 - 32965/kom (Ђ)
+        $this->assertSame('Avent flašica za bebe natural response 260ml 9639 - SCY903/01', $receipt->items[1]->name);
     }
 }
