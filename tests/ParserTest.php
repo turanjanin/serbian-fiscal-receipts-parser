@@ -393,6 +393,27 @@ class ParserTest extends TestCase
     }
 
     /** @test */
+    public function it_will_differentiate_between_item_codes_and_codes_that_are_found_as_item_name_prefix()
+    {
+        $receiptContent = $this->loadTestFile('21.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parseJournal($receiptContent);
+
+        // 200/1 FRESH ŠTAPIAI  KO (Ђ)
+        $this->assertSame('200/1 FRESH ŠTAPIAI', $receipt->items[0]->name);
+        $this->assertSame('KO', $receipt->items[0]->unit);
+
+        // 100/1 AVIS PAP. KORP KO (Ђ)
+        $this->assertSame('100/1 AVIS PAP. KORP', $receipt->items[3]->name);
+        $this->assertSame('KO', $receipt->items[3]->unit);
+
+        // 0.5L MG MIVELA VODA  FL (Ђ)
+        $this->assertSame('0.5L MG MIVELA VODA', $receipt->items[4]->name);
+        $this->assertSame('FL', $receipt->items[4]->unit);
+    }
+
+    /** @test */
     public function it_can_parse_api_response()
     {
         $json = $this->loadTestFile('1.json');
