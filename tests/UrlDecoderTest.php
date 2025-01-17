@@ -55,6 +55,14 @@ class UrlDecoderTest extends TestCase
     }
 
     /** @test */
+    public function it_can_properly_decode_advance_sale_receipt_urls()
+    {
+        $data = UrlDecoder::decode('https://suf.purs.gov.rs/v/?vl=A1VIVzNXUFM0MzcyQTVXTzAAAQAABwAAACD8ywMAAAAAAAABlCvoqFsEAAQyMDowq40dS%2F%2FGDxoksEhnEw%2BYXRI0ndz6sn5oOtGLmsh0mellmL%2F8O03Gm8SvTzI%2F8evYL23fePKNsMP5qpE3f%2FA4%2B7h2n179JHCiFFJuy25G6A7c9ZxMjzY96EDl4pIXFckQJQTgL0vhzGq41%2FomW3eI1mIAqDcIvEES6AYz2JAjnTj61N5ZQKnf%2B1oqsbSR8AjUEG4%2FEYjCuFHJxUAV%2F9xqsCzOwoMcbQOlc01PTlJIUsfCiylgiW%2BqzROZNKWhbx4PzCHeVL%2BdjkFQruN9%2FJIUOU22sUd787josUtBcrn99D4l7DgAVt3hIe8vCe8ul%2BQsJEO1a4hN4QRVqC9s2UPCpBUpyAIf26f7Yy%2F9bBtlS8LE6JV0ioOIbS63ziq3ODoxzdHIKfUQIl9heZZ9w045xea%2BZWu7f8nhrqGVVeF1kGwakb74KOULMdYPjC8sLXsIuwvdkHJZzS%2BBga43uTUirIffAPh39r%2FSEe79qUMLLzXz8NPLc%2BqUevFHS9RaOpqzd%2BypY2cOwntua2yI2J0HYcy8QJaJLIJ5qACfa1aTO0y2j8LLBdC8BDoAHzeVTONUfV9IWqaXkbKIe%2Bd%2BLHTIz0fe3NbmRqjb8j09l4aJP4rJXf0ZR4hykVJvRrMkTtSqX7vGqcTeh2xXGzNFzJyEeDP%2BLWYiuXIiQFS1bobFPTagJS%2FYtq9yTHBr3e1OVA26');
+
+        $this->assertSame(ReceiptType::AdvanceSale, $data->getReceiptType());
+    }
+
+    /** @test */
     public function it_can_decode_buyer_id_from_receipt_url()
     {
         $data = UrlDecoder::decode('https://suf.purs.gov.rs/v/?vl=A0VIR0s5OUVURUhHSzk5RVRHEQMA8QwDALi0kQEAAAAAAAABh0zrdMAAABQAAAAAAAAAADEwOjEwMDE4MTczMo38wGpJqiNIKLwERNC5XE8C1UaxA5cxHmiyV%2fcCFLpITSs2lRzp9KMSG%2bIMj8MSz%2fXkbpVz3PNrjDYUwrxRCdHbUAUz0YitXgWn3cZ1x1F8scXJ%2f%2fnERpTO4436TmVrlUBZMJnuI19hcCFovYK7PDn0MUNoxAg%2f%2bVe6CmKXxF%2b2n6xRLQIHrrlgmv4%2bNpjYJ8jFZWfG08sHCVQq3yyYOmYMBmN13W3v%2fkzcbiS4%2f%2fHfcB%2fBJuyzhdIk%2b4BjJUzQl3eoBaPisjZGIfVMGOwwP1m63VKWy7x1jnLmnTGdeMX4q8Kw1KxMkxkfFfV5VHVv1xby68kmtbbOh55f7dwLSkCqZiFJpCKoHqtYYHox9OREV83vrTwDw%2b5CdvQw5PEgD5up9JZ4QnCssycq2XM3ap6z9BrmMhBg4ODWgtdqwO414RmGU6Egznm1nASQj1AdMbrPGbfBXBcf81KG8Lwe3%2b1KQaJItq6Z%2f8lupSeYJG%2bfFib%2fYOn9SnVrbN6EkqvtUrgiTsPeBkoBlWKkDedzWdRWGpG319fauV1f4R4kz30eEQpRW0NT%2b3a%2b6vBDNm79kEZN7vC8EbtT7ejj8QBGDR5XzBCSmGG%2bZBfuAV7JKWnTeXkACgyqh8j544o5mUUb%2fNiEO5fmIy%2bOwcpgJexigFcvolIbndv8TiKip%2fcGwwQgdz1Z%2f10lwLtbLghm0Xyr5g%3d%3d');

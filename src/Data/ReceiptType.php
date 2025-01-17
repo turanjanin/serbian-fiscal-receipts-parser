@@ -45,10 +45,14 @@ enum ReceiptType: string
                 1 => self::ProformaRefund,
             ],
             2 => [
+                0 => self::CopySale,
+                1 => self::CopyRefund,
+            ],
+            3 => [
                 0 => self::TrainingSale,
                 1 => self::TrainingRefund,
             ],
-            3 => [
+            4 => [
                 0 => self::AdvanceSale,
                 1 => self::AdvanceRefund,
             ],
