@@ -378,7 +378,7 @@ class ParserTest extends TestCase
     }
 
     /** @test */
-    public function it_will_differentiate_between_units_and_units_that_are_found_as_item_name_suffix()
+    public function it_can_differentiate_between_units_and_units_that_are_found_as_item_name_suffix()
     {
         $receiptContent = $this->loadTestFile('20.txt');
 
@@ -393,7 +393,7 @@ class ParserTest extends TestCase
     }
 
     /** @test */
-    public function it_will_differentiate_between_item_codes_and_codes_that_are_found_as_item_name_prefix()
+    public function it_can_differentiate_between_item_codes_and_codes_that_are_found_as_item_name_prefix()
     {
         $receiptContent = $this->loadTestFile('21.txt');
 
@@ -411,6 +411,23 @@ class ParserTest extends TestCase
         // 0.5L MG MIVELA VODA  FL (Ђ)
         $this->assertSame('0.5L MG MIVELA VODA', $receipt->items[4]->name);
         $this->assertSame('FL', $receipt->items[4]->unit);
+    }
+
+    /** @test */
+    public function it_can_parse_receipt_items_where_unit_is_not_separated_from_the_name()
+    {
+        $receiptContent = $this->loadTestFile('22.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parseJournal($receiptContent);
+
+        // ESPRESSO SA MLEKOM(KOM) (Ђ)
+        $this->assertSame('ESPRESSO SA MLEKOM', $receipt->items[0]->name);
+        $this->assertSame('KOM', $receipt->items[0]->unit);
+
+        // KNJAZ MILOS 0.25(KOM) (Ђ)
+        $this->assertSame('KNJAZ MILOS 0.25', $receipt->items[1]->name);
+        $this->assertSame('KOM', $receipt->items[1]->unit);
     }
 
     /** @test */
