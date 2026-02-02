@@ -34,14 +34,7 @@ class UrlPayload
 
     public function getTotalAmount(): RsdAmount
     {
-        $stringValue = (string)($this->totalAmount / 10_000);
-
-        @[$integer, $fraction] = explode('.', $stringValue, 2);
-
-        $integer = intval($integer);
-        $fraction = intval($fraction);
-
-        return new RsdAmount($integer, $fraction);
+        return RsdAmount::fromFloat($this->totalAmount / 10_000);
     }
 
     public function getBuyerId(): ?string

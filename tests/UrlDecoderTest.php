@@ -47,6 +47,14 @@ class UrlDecoderTest extends TestCase
     }
 
     /** @test */
+    public function it_can_properly_decode_total_amount_with_trailing_decimal_zeros()
+    {
+        $data = UrlDecoder::decode('https://suf.purs.gov.rs/v/?vl=A1g4OUZYM0ZEQzM4RkRWTzBUfgAAVH4AABhIHQAAAAAAAAABm5JP39IAAACjhMQ%2BPpcP0Rv5V5MO1N%2BQ9cs47vBBZRaNWZhGab7cArF9HVSEEwqCaBWzFM4tBYj9riM7Prcse7CbvXWIcsnwdjuFiDhBvFYyFnk3xsVMZRAk5Kjy08AsX3vSCxtJa05Oyg8SvOzu1L9nKcfIDMxDFqOsuPbgd2aAzeMPOSiodL9A2up%2FDd6iexOuFpMicGKZy5Tkd84QoJaZPPzwcbtZdQ440gZ8MHeyLFlQYjdBIZnsS3u4ZLfJeLM907oKZu2j7xjVOs3VVe6bIvj79%2BZkGI%2Fq%2BGrolIcA14vAtgIYRX3HSh16qS7bTFT2cpnZYJhngGMcCMDIlGhI2gyvkTBeBXU9TY0pH9JMT2zNcuu1dzw0h99WI6Q%2F%2BA%2BlJ6aKFkQfBgbG2ylCqHnYCmI5KmdAicGiXQz5HNbHfm5tF4qwPN3fs7lFEYt%2BM1wNXux3CgMRpomSRUpTVVF1eOWIUOktAP7vxkubB%2BM5V85Nuo%2BduzXPJdmDHEYkY%2FEX%2BtoEBREYyw%2F10Twv%2F91jkzd1KVt00zwPZXsiTBN%2B%2FFM72FJb%2FqbRP8t4ncZeRziYjvWmNEy6lCJ%2B0xpYZeU9Y1nOI%2BC2eAVklMh1CEqG%2BIGkJbcuhwJYwhdCqd5DTFa2oVgho7uCN8D4bw4fxoXhn6vZEuN8Jhc1v15Vci8XCZmWY7w5OrBIblnqXq7EqsHL0wl3FJg%3D');
+
+        $this->assertSame(191_90, $data->getTotalAmount()->getParas());
+    }
+
+    /** @test */
     public function it_can_properly_decode_proforma_sale_receipt_urls()
     {
         $data = UrlDecoder::decode('https://suf.purs.gov.rs/v/?vl=A1ZCTUhYOVNYUjdXUzVNTzAFCwEALK4AAMDh5AAAAAAAAAABhXcDIwIBAAAHiPXrNixGe7w7uGaVPY0d63o0y1CmTNOyn%2BUWnitPJW7LIB50xADV9%2FYL3kmNs7N1k2o%2B3bsTYuTEbssmYh2eGR6VO9YikQYRn515dQ31v2bCDhofTRRGvrfCOe04pvX7wrKB8hT99ynw4KAr8CReHfIaTBrowfbAUTaNf50eB0P10py%2Fk8Mnxjyz1hs2DVBHwlYXRGf%2F74%2F0Jct2OBH6XNT4z9EYAGFIpt2c4zMf3nYcDHrjJUEnSxi5029Bh9FG3i%2BpZGQk84VgmvY%2FcRdFmNTwsVMlPKcpQUKU7r5cPvH0F0eXXmRuM25Up7Gw6klFO%2BJq9L0Rfx7i54nd6KKdPRtlo41P3ZcNvVhVKDFSFJSZygor%2BaC5I%2FsUaVl8rRvxiW3pMjNsVajbylpGGvWBqiLsMYAFGhDkqnyF1snrFlMj4cScKO5CjIRGH364HE9rVZXrHTC7SjdbCHuwlgmhYUF2UcXcnks86FJ9fR2pAOXvB6A9%2Bjuo8sxFFxdZPOgRNU7c4LxHmckrcsETdF8BBmuw14aswljf4qZhYaOVL2E2R0xNakdOpU1UQ%2B67mMKDSeDklLGo7ohiDRNFL7%2BssVRUvUN1Vp8Sw4HbpTZQ6Y3nUywAPuVQ4Y08f5IM6Oke5A%2FtKgA2hRFK8rdV6nNZr%2FMqa8xzgAjLvUc63sHjcLA%2BmdnG5C279kkAMW65ZQY%3D');
