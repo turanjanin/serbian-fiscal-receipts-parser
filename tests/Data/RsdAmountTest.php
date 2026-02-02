@@ -43,6 +43,10 @@ class RsdAmountTest extends TestCase
         $amount = RsdAmount::fromString('54.983,99');
         $this->assertSame(54983, $amount->integer);
         $this->assertSame(99, $amount->fraction);
+
+        $amount = RsdAmount::fromString('109,90');
+        $this->assertSame(109, $amount->integer);
+        $this->assertSame(90, $amount->fraction);
     }
 
     /** @test */
@@ -59,6 +63,10 @@ class RsdAmountTest extends TestCase
         $amount = RsdAmount::fromFloat(54983.99);
         $this->assertSame(54983, $amount->integer);
         $this->assertSame(99, $amount->fraction);
+
+        $amount = RsdAmount::fromFloat(109.90);
+        $this->assertSame(109, $amount->integer);
+        $this->assertSame(90, $amount->fraction);
     }
 
     /** @test */

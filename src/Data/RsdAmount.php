@@ -35,10 +35,11 @@ class RsdAmount
 
     public static function fromFloat(float $value): self
     {
-        @[$integer, $fraction] = explode('.', (string)$value, 2);
+        $rounded = round($value, 2);
+        $totalParas = (int)round($rounded * 100);
 
-        $integer = intval(str_replace('.', '', $integer));
-        $fraction = intval($fraction);
+        $integer = intdiv($totalParas, 100);
+        $fraction = abs($totalParas % 100);
 
         return new self($integer, $fraction);
     }
