@@ -502,4 +502,21 @@ class ParserTest extends TestCase
         $parser = new Parser();
         $parser->parseApiResponse($data);
     }
+
+    /** @test */
+    public function it_can_parse_receipt_items_which_contain_three_different_numbers_at_the_end_of_the_line()
+    {
+        $receiptContent = $this->loadTestFile('23.txt');
+
+        $parser = new Parser();
+        $receipt = $parser->parseJournal($receiptContent);
+
+        $this->assertInstanceOf(Receipt::class, $receipt);
+
+        $this->assertSame('Shell FuelSave Unleaded 95 2710 12 45 00', $receipt->items[0]->name);
+        $this->assertSame('LIT', $receipt->items[0]->unit);
+
+        $this->assertSame(176_00, $receipt->items[0]->singleAmount->getParas());
+        $this->assertSame(19.89, $receipt->items[0]->quantity);
+    }
 }
